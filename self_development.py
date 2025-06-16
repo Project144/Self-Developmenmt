@@ -1,26 +1,40 @@
 import streamlit as st
 from fpdf import FPDF
 import base64
+import re
 
 # --- PDF generation function ---
+def remove_emojis_and_symbols(text):
+    # Remove emojis and replace ₹ with Rs.
+    text = text.replace("₹", "Rs.")
+    text = re.sub(r'[^\x00-\x7F]+', '', text)  # remove all non-ASCII (emojis, etc.)
+    return text
+
 def create_pdf(data, total_general, total_growth, percent_growth):
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", size=12)
-    pdf.cell(200, 10, txt="Self-Investment Reflection Summary", ln=True, align='C')
+
+    # Title (emoji removed)
+    title = remove_emojis_and_symbols("Self-Investment Reflection Summary")
+    pdf.cell(200, 10, txt=title, ln=True, align='C')
     pdf.ln(10)
 
     for label, value in data.items():
-        pdf.multi_cell(0, 10, txt=f"{label}: ₹ {value if value else 'Not filled'}")
-    
+        label_clean = remove_emojis_and_symbols(label)
+        value_clean = remove_emojis_and_symbols(str(value if value else 'Not filled'))
+        display_text = f"{label_clean}: Rs. {value_clean}"
+        pdf.multi_cell(0, 10, txt=display_text)
+
     pdf.ln(5)
-    pdf.multi_cell(0, 10, txt=f"Total Spent on General Expenses: ₹ {total_general}")
-    pdf.multi_cell(0, 10, txt=f"Total Spent on Self-Growth: ₹ {total_growth}")
+    pdf.multi_cell(0, 10, txt=f"Total Spent on General Expenses: Rs. {total_general}")
+    pdf.multi_cell(0, 10, txt=f"Total Spent on Self-Growth: Rs. {total_growth}")
     pdf.multi_cell(0, 10, txt=f"Personal Growth Investment: {percent_growth:.1f}% of your total spending")
 
+    # Encode PDF to base64 for download
     pdf_output = pdf.output(dest='S').encode('latin-1')
     b64 = base64.b64encode(pdf_output).decode()
-    href = f'<a href="data:application/octet-stream;base64,{b64}" download="Self_Investment_Summary.pdf">📥 Download PDF</a>'
+    href = f'<a href="data:application/octet-stream;base64,{b64}" download="Self_Investment_Summary.pdf">Download PDF</a>'
     return href
 
 # --- Helper to safely parse inputs ---
