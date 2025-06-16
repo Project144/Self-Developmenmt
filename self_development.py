@@ -7,16 +7,16 @@ def create_pdf(data, total_general, total_growth, percent_growth):
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", size=12)
-    pdf.cell(200, 10, txt="🧠 Self-Investment Reflection Summary", ln=True, align='C')
+    pdf.cell(200, 10, txt="Self-Investment Reflection Summary", ln=True, align='C')
     pdf.ln(10)
 
     for label, value in data.items():
         pdf.multi_cell(0, 10, txt=f"{label}: ₹ {value if value else 'Not filled'}")
     
     pdf.ln(5)
-    pdf.multi_cell(0, 10, txt=f"🧾 Total Spent on General Expenses: ₹ {total_general}")
-    pdf.multi_cell(0, 10, txt=f"📘 Total Spent on Self-Growth: ₹ {total_growth}")
-    pdf.multi_cell(0, 10, txt=f"📊 Personal Growth Investment: {percent_growth:.1f}% of your total spending")
+    pdf.multi_cell(0, 10, txt=f"Total Spent on General Expenses: ₹ {total_general}")
+    pdf.multi_cell(0, 10, txt=f"Total Spent on Self-Growth: ₹ {total_growth}")
+    pdf.multi_cell(0, 10, txt=f"Personal Growth Investment: {percent_growth:.1f}% of your total spending")
 
     pdf_output = pdf.output(dest='S').encode('latin-1')
     b64 = base64.b64encode(pdf_output).decode()
